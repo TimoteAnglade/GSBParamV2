@@ -8,7 +8,9 @@ switch($action)
 		if($n >0)
 		{
 			$desIdProduit = getLesIdProduitsDuPanier();
+			var_dump($desIdProduit);
 			$lesProduitsDuPanier = getLesProduitsDuTableau($desIdProduit);
+			var_dump($lesProduitsDuPanier);
 			include("vues/v_panier.php");
 		}
 		else
@@ -33,18 +35,15 @@ switch($action)
 		{   // les variables suivantes servent à l'affectation des attributs value du formulaire
 			// ici le formulaire doit être vide, quand il est erroné, le formulaire sera réaffiché pré-rempli
 			// si l'utilisateur est connecté, alors les valeurs rattachées à son compte seront utilisées à la place
-	if(isset($_SESSION['login'])){
-		$attributs=getAttributsUtilisateur($_SESSION['login']);
+	if(isset($_SESSION['mail'])){
+		$attributs=getAttributsUtilisateur($_SESSION['mail']);
 		$nom = $attributs["nom_prenom"];
 		$rue = $attributs["rue"];
 		$ville = $attributs["ville"];
 		$cp = $attributs["code_postal"];
 		$mail = $attributs["mail"];
+		include ("vues/v_commande.php");
 	}
-	else{
-		$nom ='';$rue='';$ville ='';$cp='';$mail='';	
-	}
-	include ("vues/v_commande.php");
 }
 else
 {

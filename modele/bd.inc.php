@@ -18,7 +18,7 @@
 function connexionPDO() {
     $login = 'gsbparam';
     $mdp = 'BlNqa-xGs-vzoZVC';
-    $bd = 'tim_gsbparam';
+    $bd = 'tim_paramv2';
     $serveur = 'localhost';
     $port='3307';
 

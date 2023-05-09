@@ -67,7 +67,7 @@ include_once 'bd.inc.php';
 		try 
 		{
         $monPdo = connexionPDO();
-	    $req='select id, description, prix, image, idCategorie from produit where idCategorie ="'.$idCategorie.'"';
+	    $req='select p.id, m.nom_marque as marque, description, min(pc.prix) as prix, image, id_categorie, sum(stock) as stock from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque=p.id_marque where id_categorie ="'.$idCategorie.'" group by p.id';
 		$res = $monPdo->query($req);
 		$lesLignes = $res->fetchAll(PDO::FETCH_ASSOC);
 		return $lesLignes; 
@@ -89,7 +89,7 @@ include_once 'bd.inc.php';
 		try 
 		{
         $monPdo = connexionPDO();
-	    $req='select id, description, prix, image, idCategorie from produit';
+	    $req='select p.id, nom_marque as marque, description, min(pc.prix) as prix, image, id_categorie, sum(stock) as stock from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque = p.id_marque group by p.id';
 		$res = $monPdo->query($req);
 		$lesLignes = $res->fetchAll(PDO::FETCH_ASSOC);
 		return $lesLignes; 
@@ -117,10 +117,11 @@ include_once 'bd.inc.php';
 		{
 			foreach($desIdProduit as $unIdProduit)
 			{
-				$req = "SELECT id, description, prix, image, idCategorie FROM produit WHERE id = '$unIdProduit[0]'";
+
+				$req = 'select p.id, libelle, id_contenance, pc.qte, unit_intitule, unit_pluriel, nom_marque as marque, description, pc.prix, image, id_categorie from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque = p.id_marque inner join unites u on pc.id_unit=u.id_unit where p.id="'.$unIdProduit['id'].'" AND id_contenance="'.$unIdProduit['id_contenance'].'";';
 				$res = $monPdo->query($req);
 				$unProduit = $res->fetch(PDO::FETCH_ASSOC);
-				$unProduit['qte'] = getQteProduit($unIdProduit);
+				$unProduit['qte'] = $unIdProduit['qte'];
 				$lesProduits[] = $unProduit;
 			}
 		}
@@ -337,4 +338,22 @@ include_once 'bd.inc.php';
 			die();
 		}
 	}	
+
+	function getDetailsProduit($id){
+		$monPdo= connexionPDO();
+		$req="SELECT id, nom_marque as marque, libelle, description, image, dateMiseEnRayon, id_categorie from produit p inner join marque m on m.id_marque = p.id_marque WHERE id=:id;";
+		$req = $monPdo->prepare($req);
+		$req->execute(['id'=>$id]);
+		$res = $req->fetch(PDO::FETCH_ASSOC);
+		return $res;
+	}
+
+	function getContenances($id){
+		$monPdo= connexionPDO();
+		$req="SELECT id_contenance, prix, qte, stock, isBase, id_categorie, unit_intitule, unit_pluriel from produit p inner join produitcontenance pc on pc.id = p.id inner join unites u on pc.id_unit=u.id_unit WHERE p.id=:id;";
+		$req = $monPdo->prepare($req);
+		$req->execute(['id'=>$id]);
+		$res = $req->fetchAll(PDO::FETCH_ASSOC);
+		return $res;
+	}
 ?>

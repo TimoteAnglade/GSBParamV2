@@ -1,4 +1,4 @@
-<ul id="categories">
+<ul id="categories" class="d-flex flex-column flex-shrink-0 p-3" style="min-height: 100vc">
 <?php
 foreach( $lesCategories as $uneCategorie) 
 {

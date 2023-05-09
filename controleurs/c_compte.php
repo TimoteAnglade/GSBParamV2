@@ -4,23 +4,23 @@ switch($action)
 {
 	case "connexion" :
 	{
-		if(isset($_SESSION['login'])) {
+		if(isset($_SESSION['mail'])) {
 			include("vues/v_accueil.html");
 		}
 		else{
-			$login='';$password='';
+			$mail='';$password='';
 			include("vues/v_formCon.php");
 		}
 		break;
 	}
 	case "confirmationConnexion" :
 	{
-		$login=$_REQUEST['login'];$password=$_REQUEST['password'];
-		if(connection($login, $password)){
+		$mail=$_REQUEST['mail'];$password=$_REQUEST['password'];
+		if(connection($mail, $password)){
 			header("Location:?uc=compte&action=apresConnexion");
 		}
 		else {
-			$msgErreurs = ['Mauvais mail/login/mot de passe.'];
+			$msgErreurs = ['Mauvais mail/mot de passe.'];
 			include("vues/v_erreurs.php");
 			include("vues/v_formCon.php");
 		}
@@ -34,19 +34,26 @@ switch($action)
 	}
 	case "inscription" :
 	{
-		if(isset($_SESSION['login'])) {
+		if(isset($_SESSION['mail'])) {
 			include("vues/v_accueil.html");
 		}
 		else{
-			$login='';$password1='';$password2='';$nom='';$rue='';$ville='';$cp='';$mail='';
+			$password1='';$password2='';$nom='';$prenom='';$rue='';$ville='';$cp='';$mail='';
 			include("vues/v_formInc.php");
 		}
 		break;
 	}
 	case "confirmationInscription" :
 	{
-		$login=$_REQUEST['login'];$password1=$_REQUEST['password1'];$password2=$_REQUEST['password2'];$nom=$_REQUEST['nom'];$rue=$_REQUEST['rue'];$ville =$_REQUEST['ville'];$cp=$_REQUEST['cp'];$mail=$_REQUEST['mail'];
-		$msgErreurs = getErreursSaisieInscription($login,$password1,$password2,$nom,$rue,$ville,$cp,$mail);
+		$mail=$_REQUEST['mail'];
+		$password1=$_REQUEST['password1'];
+		$password2=$_REQUEST['password2'];
+		$nom=$_REQUEST['nom'];
+		$prenom=$_REQUEST['prenom'];
+		$rue=$_REQUEST['rue'];
+		$ville =$_REQUEST['ville'];
+		$cp=$_REQUEST['cp'];
+		$msgErreurs = getErreursSaisieInscription($mail,$password1,$password2,$nom,$prenom,$rue,$ville,$cp);
 		if (count($msgErreurs)!=0)
 		{
 			include ("vues/v_erreurs.php");
@@ -54,7 +61,7 @@ switch($action)
 		}
 		else
 		{
-			if(inscription($login,$password1,$nom,$rue,$ville,$cp,$mail)){
+			if(inscription($mail,$password1,$nom,$prenom,$rue,$ville,$cp)){
 				$message = "Inscription effectuée";
 				include ("vues/v_message.php");
 				include ("vues/v_accueil.html");
@@ -69,7 +76,7 @@ switch($action)
 	}
 	case "deconnexion" :
 	{
-		unset($_SESSION['login']);
+		unset($_SESSION['mail']);
 		header("Location:?uc=compte&action=apresDeconnexion");
 		break;
 	}

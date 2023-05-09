@@ -1,7 +1,7 @@
 ﻿<div id="bandeau">
 <!-- Images En-tête -->
 <?php
-if(isset($_SESSION['login'])) {
+if(isset($_SESSION['mail'])) {
 	if(isAdmin()){?>
 <img src="images/logo_2.jpg" alt="GsbLogo" title="GsbLogo"/>
 <?php }
@@ -20,7 +20,7 @@ else {
 	<li><a href="index.php?uc=voirProduits&action=nosProduits"> Nos produits </a></li>
 	<li><a href="index.php?uc=gererPanier&action=voirPanier"> Voir son panier </a></li>
 	<?php
-	if(isset($_SESSION['login'])) {
+	if(isset($_SESSION['mail'])) {
 		?>
 		<li><a href="index.php?uc=compte&action=deconnexion"> Se déconnecter </a></li>
 		<?php

@@ -1,7 +1,7 @@
 <?php
 $action = $_REQUEST['action'];
-if(isset($_SESSION['login'])){
-if(isAdmin($_SESSION['login'])){
+if(isset($_SESSION['mail'])){
+if(isAdmin($_SESSION['mail'])){
 switch($action)
 {
 	case 'listeProduits':

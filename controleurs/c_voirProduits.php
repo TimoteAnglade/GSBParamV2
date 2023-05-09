@@ -1,6 +1,5 @@
 ﻿<?php
 // contrôleur qui gère l'affichage des produits
-initPanier(); // se charge de réserver un emplacement mémoire pour le panier si pas encore fait
 $action = $_REQUEST['action'];
 switch($action)
 {
@@ -31,8 +30,10 @@ switch($action)
 	case 'ajouterAuPanier' :
 	{
 		$idProduit=$_REQUEST['produit'];
+		$idCont=$_REQUEST['contenance'];
+		$qte=$_REQUEST['qte'];
 		
-		$ok = ajouterAuPanier($idProduit);
+		$ok = ajouterAuPanier($idProduit, $idCont, $qte);
 		if(!$ok)
 		{
 			$message = "Erreur d'insertion.";
@@ -48,6 +49,17 @@ switch($action)
 			header('Location:index.php?uc=voirProduits&action=nosProduits');
 		}
 		break;
+	}
+	case 'detailsProduit' :
+	{
+		$produit=getDetailsProduit($_REQUEST['id']);
+		$conts=getContenances($_REQUEST['id']);
+		$prixC = "{";
+		foreach($conts as $cont){
+			$prixC = $prixC."'".$cont['id_contenance']."' : '".$cont['prix']."', ";
+		}
+		$prixC = $prixC.'}';
+		include("vues/v_detailsProduit.php");
 	}
 }
 ?>
