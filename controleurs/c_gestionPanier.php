@@ -11,6 +11,7 @@ switch($action)
 			var_dump($desIdProduit);
 			$lesProduitsDuPanier = getLesProduitsDuTableau($desIdProduit);
 			var_dump($lesProduitsDuPanier);
+			for($i=0, $i<count($desIdProduit))
 			include("vues/v_panier.php");
 		}
 		else

@@ -11,6 +11,8 @@ foreach( $lesProduitsDuPanier as $unProduit)
 	$image = $unProduit['image'];
 	$prix = $unProduit['prix'];
 	$qte = $unProduit['qte'];
+	$nom = $unIdProduit['libelle'];
+	$marque =
 	// affichage
 	?>
 	<div class="card">
@@ -24,7 +26,7 @@ foreach( $lesProduitsDuPanier as $unProduit)
 		<form action="" method="GET">
 			<input type="text" name="idp" value="<?php echo $id; ?>" hidden>
 			<input type="text" name="idc" value="<?php echo $id; ?>" hidden>
-			<input type="text" name="" value="<?php echo $id; ?>" hidden>
+			<input type="text" name="qte" value="<?php echo $qte; ?>" hidden>
 		</form>
 	</div>
 	<img src="images/retirerpanier.png" TITLE="Retirer du panier" alt="retirer du panier"></a></div>
