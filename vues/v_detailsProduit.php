@@ -21,7 +21,7 @@
 				<?php
 				if(isset($_SESSION['mail'])){
 					if(canAvis($_SESSION['mail'], $produit['id'])){
-						?><a href="uc=compte&action=redigerAvis&id=<?php echo $produit['id']; ?>">Rédiger un avis</a><?php
+						?><a href="?uc=compte&action=redigerAvis&id=<?php echo $produit['id']; ?>">Rédiger un avis</a><?php
 					}
 				}
 				?>
@@ -52,7 +52,9 @@
 	                            $i++;
 	                        } ?>
 					</select>
-					<h3> <span id="prix"><?php echo $conts[$j]['prix']; ?></span>€ TTC.</h3>
+					<div class="container">
+						<h3> <span id="prix"><?php echo $conts[$j]['prix']; ?></span>€ TTC.  <span class="text-danger" id="stock"><em> <?php echo $conts[$j]['stock'].' encore en stock'; ?> </em></span></h3>
+					</div>
 					<div class="input-group">
 						<input class="form-control" type="number" name="qte" value="1" min="1">
 						<input class="btn btn-outline-success btn-block active" type="submit" value="Ajouter au panier">

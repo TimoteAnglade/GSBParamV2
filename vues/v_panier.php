@@ -44,7 +44,7 @@ foreach($lesProduitsDuPanier as $unProduit)
 				<input type="submit" value="Modifier" class="active btn-outline-success ">
 			</div>
 		</form>
-	</div><a href="index.php?uc=gererPanier&action=supprimerUnProduit&produit=<?php echo $id ?>&idContenance=<?php echo $idCont ?>&qte=-1" onclick="return confirm('Voulez-vous vraiment retirer cet article ?');">
+	</div><a href="index.php?uc=gererPanier&action=supprimerUnProduit&idp=<?php echo $id ?>&idc=<?php echo $idCont ?>&qte=-1" onclick="return confirm('Voulez-vous vraiment retirer cet article ?');">
 	<img src="images/retirerpanier.png" TITLE="Retirer du panier" alt="retirer du panier"></a></div>
 	</div>
 	<?php

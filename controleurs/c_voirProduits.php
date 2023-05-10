@@ -67,7 +67,8 @@ switch($action)
 		}
 		$prixC = "{";
 		foreach($conts as $cont){
-			$prixC = $prixC."'".$cont['id_contenance']."' : '".$cont['prix']."', ";
+			$prixC = $prixC."'".$cont['id_contenance']."prix' : '".$cont['prix']."', ";
+			$prixC = $prixC."'".$cont['id_contenance']."stock' : '".$cont['stock']."', ";
 		}
 		$prixC = $prixC.'}';
 		include("vues/v_detailsProduit.php");

@@ -87,7 +87,24 @@ switch($action)
 		include("vues/v_accueil.html");
 		break;
 	}
-	case "redigerAvis":{
-		
+	case "redigerAvis":
+	{
+		$id=$_REQUEST['id'];
+		$data=getDetailsProduit($id);
+		include("vues/v_formulaireAvis.php");
+		break;
+	}
+	case "publierAvis":
+	{
+		$mail=$_SESSION['mail'];
+		$note=$_REQUEST['note'];
+		$content=$_REQUEST['contenu'];
+		$id=$_REQUEST['id'];
+		addAvis($mail, $id, $content, $note);
+		header("Location:?uc=voirProduits&action=detailsProduit&id=".$id);
+	}
+	default:
+	{
+		include("vues/v_accueil.php");
 	}
 }

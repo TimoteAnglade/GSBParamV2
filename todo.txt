@@ -1,0 +1,3 @@
+Ne pas pouvoir commander si la qte dépasse le stock sur ne serait-ce qu'une contenance
+
+Toute la partie back office (liste commandes, gestion de l'état des commandes, gestion du stock, gestion des produits)
