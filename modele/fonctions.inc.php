@@ -83,9 +83,11 @@ function nbProduitsDuPanier()
 	if(isset($_SESSION['mail'])){
 		$mail=getMail();
 		$monPdo= connexionPDO();
-		$req = "SELECT count(*) FROM panier WHERE mail='$mail';";
-		$res = $monPdo->query($req);
-		$n = $res->fetch()[0];
+		$req = "SELECT count(*) as c FROM panier WHERE mail=:mail;";
+		$req = $monPdo->prepare($req);
+		$req->execute(['mail'=>$mail]);
+		$res = $req->fetch(PDO::FETCH_ASSOC);
+		$n = $res['c'];
 	}
 	return $n;
 }
@@ -124,6 +126,32 @@ function retirerDuPanier($idProduit, $idCont)
 	return $ok;
 }
 
+function modifierQtePanier($id, $idCont, $qte){
+	$mail=getMail();
+	try{
+	if($qte>=1){
+		$monPdo= connexionPDO();
+		$req = "UPDATE panier SET qte=:qte WHERE mail=:mail AND id=:id AND id_contenance=:cont;";	
+   	$req = $monPdo->prepare($req);
+   	$req->execute(['id'=>$id, 'cont'=> $idCont, 'mail'=>$mail, 'qte'=>$qte]);
+   	return true;
+	}
+	else{
+		$monPdo= connexionPDO();
+		$req = "DELETE FROM panier WHERE mail=:mail AND id=:id AND id_contenance=:cont;";	
+   	$req = $monPdo->prepare($req);
+   	$req->execute(['id'=>$id, 'cont'=> $idCont, 'mail'=>$mail]);		
+   	return true;
+	}
+	}
+	catch (PDOException $e) 
+	{
+			print("ERREUR SQL : ".$e);
+      	return false;
+      	die();
+	}
+}
+
 /**
  * teste si une chaîne a un format de code postal
  *
@@ -160,7 +188,7 @@ function estEntier($valeur)
 */
 function estUnMail($mail)
 {
-return  preg_match ('#^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$#', $mail);
+	return  preg_match ('#^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$#', $mail);
 }
 /**
  * Retourne un tableau d'erreurs de saisie pour une commande
@@ -281,98 +309,99 @@ function getErreursSaisieInscription($mail,$password1,$password2,$nom,$prenom,$r
 	return $lesErreurs;
 }
 
-	function inscription($mail,$password,$nom,$prenom,$rue,$ville,$cp){
-		try 
-		{
-		$hashedPass=password_hash($password, PASSWORD_DEFAULT);
-        $monPdo = connexionPDO();
-		$req = "INSERT INTO compte (`mail`,`pass`,`nom`,`prenom`,`adresseRue`,`ville`, `cp`) VALUES ('$mail','$hashedPass','$nom','$prenom','$rue','$ville','$cp')";
-		$res = $monPdo->exec($req);
-		return true;
-		}
-		catch (PDOException $e) 
-		{
-			print("ERREUR SQL : ".$e);
-      	return false;
-      	die();
-		}
+function inscription($mail,$password,$nom,$prenom,$rue,$ville,$cp){
+	try 
+	{
+	$hashedPass=password_hash($password, PASSWORD_DEFAULT);
+     $monPdo = connexionPDO();
+	$req = "INSERT INTO compte (`mail`,`pass`,`nom`,`prenom`,`adresseRue`,`ville`, `cp`) VALUES ('$mail','$hashedPass','$nom','$prenom','$rue','$ville','$cp')";
+	$res = $monPdo->exec($req);
+	return true;
 	}
+	catch (PDOException $e) 
+	{
+		print("ERREUR SQL : ".$e);
+   	return false;
+   	die();
+	}
+}
 
-	function connection($mail, $password){
-		try
-		{	
-			$valide=false;
+function connection($mail, $password){
+	try
+	{	
+		$valide=false;
+		$monPdo= connexionPDO();
+ 		$req = "SELECT pass FROM compte WHERE mail='$mail'";
+    	$res = $monPdo->query($req);
+    	$hashedPass=$res->fetch();
+    	var_dump($hashedPass);
+    	if($hashedPass){
+    		if(password_verify($password, $hashedPass[0])){
+    			$_SESSION['mail']=$mail;
+    			$valide=true;
+    		}
+    	}
+    	return $valide;
+	}
+	catch(PDOException $e)
+	{
+		print("ERREUR SQL : ".$e);
+		return false;
+	}
+}
+
+function getAttributsUtilisateur($mail){
+	try
+	{	
+		$valide=false;
+		$monPdo= connexionPDO();
+ 		$req = "SELECT mail, nom, prenom, mail, rue, code_postal, ville FROM compte WHERE mail='$mail'";
+    	$res = $monPdo->query($req);
+    	$attributs=$res->fetchAll();
+    	return $attributs[0];
+	}
+	catch(PDOException $e)
+	{
+		return false;
+	}
+}
+
+function getQteProduit($idProduit){
+	$qte = 0;
+	if(isset($_SESSION['mail'])){
+			$mel=getMail();
 			$monPdo= connexionPDO();
-    		$req = "SELECT pass FROM compte WHERE mail='$mail'";
-	    	$res = $monPdo->query($req);
-	    	$hashedPass=$res->fetch();
-	    	var_dump($hashedPass);
-	    	if($hashedPass){
-	    		if(password_verify($password, $hashedPass[0])){
-	    			$_SESSION['mail']=$mail;
-	    			$valide=true;
-	    		}
-	    	}
-	    	return $valide;
-		}
-		catch(PDOException $e)
-		{
-			print("ERREUR SQL : ".$e);
-			return false;
-		}
+			$req = "SELECT qte FROM panier p WHERE mail='$mel' AND id='$idProduit[0]'";
+		   	$res = $monPdo->query($req);
+		   	$qte=$res->fetch()[0];
 	}
-
-	function getAttributsUtilisateur($mail){
-		try
-		{	
-			$valide=false;
-			$monPdo= connexionPDO();
-    		$req = "SELECT mail, nom, prenom, mail, rue, code_postal, ville FROM compte WHERE mail='$mail'";
-	    	$res = $monPdo->query($req);
-	    	$attributs=$res->fetchAll();
-	    	return $attributs[0];
-		}
-		catch(PDOException $e)
-		{
-			return false;
-		}
-	}
-
-	function getQteProduit($idProduit){
-		$qte = 0;
-		if(isset($_SESSION['mail'])){
-				$mel=getMail($_SESSION['mail']);
-				$monPdo= connexionPDO();
-				$req = "SELECT qte FROM panier p WHERE mail='$mel' AND id='$idProduit[0]'";
-			   	$res = $monPdo->query($req);
-			   	$qte=$res->fetch()[0];
-		}
-		else{
-			foreach ($_SESSION['panier'] as $unProduit) {
-				if($unProduit[0]==$idProduit){
-					$qte=$unProduit[1];
-				}
+	else{
+		foreach ($_SESSION['panier'] as $unProduit) {
+			if($unProduit[0]==$idProduit){
+				$qte=$unProduit[1];
 			}
 		}
-		return $qte;
 	}
+	return $qte;
+}
 
-	function getMail(){
-		return $_SESSION['mail'];
-	}
+function getMail(){
+	return $_SESSION['mail'];
+}
 
-	function isAdmin(){
-		if(isset($_SESSION['mail']))
-		{
-			$monPdo= connexionPDO();
-			$log=$_SESSION['mail'];
-			$req = "SELECT admin FROM compte WHERE mail='$log'";
-		   	$res = $monPdo->query($req);
-		   	$admin = $res->fetch()[0]==1;
-		}
-		else{
-			$admin=false;
-		}
-		return $admin;
+function isAdmin(){
+	if(isset($_SESSION['mail']))
+	{
+		$monPdo= connexionPDO();
+		$mail=$_SESSION['mail'];
+		$req = "SELECT admin FROM compte WHERE mail=:mail";
+		$req = $monPdo->prepare($req);
+		$req->execute(['mail'=>$mail]);
+	   $admin = $req->fetch()[0]==1;
 	}
+	else{
+		$admin=false;
+	}
+	return $admin;
+}
 ?>

@@ -31,8 +31,11 @@ switch($action)
 	{
 		$idProduit=$_REQUEST['produit'];
 		$idCont=$_REQUEST['contenance'];
-		$qte=$_REQUEST['qte'];
-		
+		$qte=intval($_REQUEST['qte']);
+		if($qte<1){
+			header('Location:index.php?uc=voirProduits&action=detailsProduit&id='.$idProduit);
+			break;
+		}
 		$ok = ajouterAuPanier($idProduit, $idCont, $qte);
 		if(!$ok)
 		{
@@ -45,15 +48,23 @@ switch($action)
 			$categorie = $_REQUEST['categorie'];
 			header('Location:index.php?uc=voirProduits&action=voirProduits&categorie='.$categorie);
 		}
-		else 
+		else {
 			header('Location:index.php?uc=voirProduits&action=nosProduits');
+		}
 		}
 		break;
 	}
 	case 'detailsProduit' :
-	{
-		$produit=getDetailsProduit($_REQUEST['id']);
-		$conts=getContenances($_REQUEST['id']);
+	{	
+		$id=$_REQUEST['id'];
+		$produit=getDetailsProduit($id);
+		$conts=getContenances($id);
+		$avis=getDataAvis($id);
+		$recoTemp=getIdReco($id);
+		$reco = [];
+		foreach ($recoTemp as $recoTemp2) {
+			$reco[] = getDetailsProduit($recoTemp2['id_produit']);
+		}
 		$prixC = "{";
 		foreach($conts as $cont){
 			$prixC = $prixC."'".$cont['id_contenance']."' : '".$cont['prix']."', ";

@@ -22,6 +22,7 @@ foreach( $lesProduits as $unProduit)
 { 	// récupération des informations du produit
 	$id = $unProduit['id'];
 	$description = $unProduit['description'];
+	$nom = $unProduit['libelle'];
 	$prix=$unProduit['prix'];
 	$image = $unProduit['image'];
 	$marque = $unProduit['marque'];
@@ -35,7 +36,7 @@ foreach( $lesProduits as $unProduit)
 			</a>
 			<div class="card-body">
 			<h4 class="text-center"><?php echo $marque;?></h4>
-			<h5 class="text-center descrCard"><?php echo $description ?></h5>
+			<h5 class="text-center descrCard"><?php echo $nom ?></h5>
 			<form action="" method="GET">
 				<input type="text" name="uc" value="voirProduits" hidden>
 				<input type="text" name="action" value="detailsProduit" hidden>

@@ -1,24 +1,26 @@
 <div class="produits d-flex flex-row flex-wrap justify-content- align-items-start"  style="flex-direction: column;">
 <?php
+//var_dump($lesProduits);
 // parcours du tableau contenant les produits à afficher
-foreach( $lesProduits as $unProduit) 
+foreach($lesProduits as $unProduit) 
 { 	// récupération des informations du produit
 	$id = $unProduit['id'];
 	$description = $unProduit['description'];
+	$nom = $unProduit['libelle'];
 	$prix=$unProduit['prix'];
 	$image = $unProduit['image'];
 	$marque = $unProduit['marque'];
 	$stock = $unProduit['stock'];
 	// affichage d'un produit avec ses informations
 	?>
-	<div class="card p-2 mb-5 mr-ml3" style="width: 18rem; height: 28rem;
+	<div class="card p-2 mb-5 mr-ml3" style="width: 18rem; height: 30rem;
     box-shadow: 3px 3px 5px #bbb;">
 			<a class="mx-auto" href="?uc=voirProduits&action=detailsProduit&id=<?php echo $id ?>">
 			<img class="card-img-top" src="<?php echo $image ?>" alt=image style="width: 15rem; height: 15rem"/>
 			</a>
 			<div class="card-body">
 			<h4 class="text-center"><?php echo $marque;?></h4>
-			<h5 class="text-center descrCard"><?php echo $description ?></h5>
+			<h5 class="text-center descrCard"><?php echo $nom ?></h5>
 			<form action="" method="GET">
 				<input type="text" name="uc" value="voirProduits" hidden>
 				<input type="text" name="action" value="detailsProduit" hidden>
@@ -28,6 +30,17 @@ foreach( $lesProduits as $unProduit)
 					<div class="p-2"><h6 class="text-center"><span class="font-weight-bold text-<?php if($stock){echo "success\">En stock";}else{echo "danger\">Hors stock";} ?></span></h6></div>
 					<input type="submit" value="Voir" class="p-2 form-control btn btn-success">
 				</div>
+				<div class="text-center container"><h5><?php 
+												$note=getMoy($id);
+												$i=0;
+												for($i; $i<$note; $i++){
+													echo '⭐';
+												}
+												for($i; $i<5; $i++){
+													echo '★';
+												}
+												echo '</h5><h6> ('.getNbAvis($id).' avis)';
+												?></h6></div>
 			</form>
 
 			</div>

@@ -1,57 +1,56 @@
 ﻿<?php
+if(isset($_SESSION['mail'])){
 $action = $_REQUEST['action'];
 switch($action)
 {
-	case 'voirPanier':
+case 'voirPanier':
+{
+	$n= nbProduitsDuPanier();
+	if($n >0)
 	{
-		$n= nbProduitsDuPanier();
-		if($n >0)
-		{
-			$desIdProduit = getLesIdProduitsDuPanier();
-			var_dump($desIdProduit);
-			$lesProduitsDuPanier = getLesProduitsDuTableau($desIdProduit);
-			var_dump($lesProduitsDuPanier);
-			for($i=0, $i<count($desIdProduit))
-			include("vues/v_panier.php");
-		}
-		else
-		{
-			$message = "panier vide !!";
-			include ("vues/v_message.php");
-		}
-		break;
-	}
-	case 'supprimerUnProduit':
-	{
-		$idProduit=$_REQUEST['produit'];
-		retirerDuPanier($idProduit);
 		$desIdProduit = getLesIdProduitsDuPanier();
 		$lesProduitsDuPanier = getLesProduitsDuTableau($desIdProduit);
+		for($i=0; $i<count($desIdProduit); $i++){}
 		include("vues/v_panier.php");
-		break;
 	}
-	case 'passerCommande' :
+	else
+	{
+		$message = "panier vide !!";
+		include ("vues/v_message.php");
+	}
+	break;
+}
+case 'supprimerUnProduit':
+{
+	$idProduit=$_REQUEST['idp'];
+	$idCont=$_REQUEST['idc'];
+	$qte=$_REQUEST['qte'];
+	modifierQtePanier($idProduit, $idCont, $qte);
+	header("Location:?uc=gererPanier&action=voirPanier");
+	break;
+}
+case 'passerCommande' :
+{
 	$n= nbProduitsDuPanier();
 	if($n>0)
-		{   // les variables suivantes servent à l'affectation des attributs value du formulaire
-			// ici le formulaire doit être vide, quand il est erroné, le formulaire sera réaffiché pré-rempli
-			// si l'utilisateur est connecté, alors les valeurs rattachées à son compte seront utilisées à la place
-	if(isset($_SESSION['mail'])){
-		$attributs=getAttributsUtilisateur($_SESSION['mail']);
-		$nom = $attributs["nom_prenom"];
-		$rue = $attributs["rue"];
-		$ville = $attributs["ville"];
-		$cp = $attributs["code_postal"];
-		$mail = $attributs["mail"];
-		include ("vues/v_commande.php");
+	{
+		$lesIdProduit = getLesIdProduitsDuPanier();
+		if(creerCommande($lesIdProduit)){
+			$message = "Commande enregistrée";
+			supprimerPanier();
+		}
+		else{
+			$message = "Commande échouée";
+		}
+		include ("vues/v_message.php");
 	}
+	else
+	{
+		$message = "panier vide !!";
+		include ("vues/v_message.php");
+	}
+	break;
 }
-else
-{
-	$message = "panier vide !!";
-	include ("vues/v_message.php");
-}
-break;
 case 'confirmerCommande' :
 {
 	$nom =$_REQUEST['nom'];$rue=$_REQUEST['rue'];$ville =$_REQUEST['ville'];$cp=$_REQUEST['cp'];$mail=$_REQUEST['mail'];
@@ -63,7 +62,6 @@ case 'confirmerCommande' :
 	}
 	else
 	{
-		$lesIdProduit = getLesIdProduitsDuPanier();
 		if(creerCommande($nom,$rue,$cp,$ville,$mail, $lesIdProduit )){
 			$message = "Commande enregistrée";
 			supprimerPanier();
@@ -75,13 +73,14 @@ case 'confirmerCommande' :
 case 'viderPanier' :
 {
 	supprimerPanier();
-	$message = "panier vide !!";
-	include ("vues/v_message.php");
+	header("Location:?uc=gererPanier&action=voirPanier");
 	break;
 }
 }
-
-
+}
+else{
+	include("vues/v_accueil.html");
+}
 ?>
 
 

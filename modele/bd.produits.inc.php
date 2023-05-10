@@ -67,9 +67,10 @@ include_once 'bd.inc.php';
 		try 
 		{
         $monPdo = connexionPDO();
-	    $req='select p.id, m.nom_marque as marque, description, min(pc.prix) as prix, image, id_categorie, sum(stock) as stock from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque=p.id_marque where id_categorie ="'.$idCategorie.'" group by p.id';
-		$res = $monPdo->query($req);
-		$lesLignes = $res->fetchAll(PDO::FETCH_ASSOC);
+	    $req='select p.id, libelle, m.nom_marque as marque, description, min(pc.prix) as prix, image, id_categorie, sum(stock) as stock from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque=p.id_marque where id_categorie =:cat group by p.id';
+		$req = $monPdo->prepare($req);
+		$req->execute(['cat'=>$idCategorie]);
+		$lesLignes = $req->fetchAll(PDO::FETCH_ASSOC);
 		return $lesLignes; 
 		} 
 		catch (PDOException $e) 
@@ -89,7 +90,7 @@ include_once 'bd.inc.php';
 		try 
 		{
         $monPdo = connexionPDO();
-	    $req='select p.id, nom_marque as marque, description, min(pc.prix) as prix, image, id_categorie, sum(stock) as stock from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque = p.id_marque group by p.id';
+	    $req='select p.id, libelle, nom_marque as marque, description, min(pc.prix) as prix, image, id_categorie, sum(stock) as stock from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque = p.id_marque group by p.id';
 		$res = $monPdo->query($req);
 		$lesLignes = $res->fetchAll(PDO::FETCH_ASSOC);
 		return $lesLignes; 
@@ -118,7 +119,7 @@ include_once 'bd.inc.php';
 			foreach($desIdProduit as $unIdProduit)
 			{
 
-				$req = 'select p.id, libelle, id_contenance, pc.qte, unit_intitule, unit_pluriel, nom_marque as marque, description, pc.prix, image, id_categorie from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque = p.id_marque inner join unites u on pc.id_unit=u.id_unit where p.id="'.$unIdProduit['id'].'" AND id_contenance="'.$unIdProduit['id_contenance'].'";';
+				$req = 'select p.id, libelle, id_contenance, pc.qte as qteC, unit_intitule, unit_pluriel, nom_marque as marque, description, pc.prix, image, id_categorie from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque = p.id_marque inner join unites u on pc.id_unit=u.id_unit where p.id="'.$unIdProduit['id'].'" AND id_contenance="'.$unIdProduit['id_contenance'].'";';
 				$res = $monPdo->query($req);
 				$unProduit = $res->fetch(PDO::FETCH_ASSOC);
 				$unProduit['qte'] = $unIdProduit['qte'];
@@ -147,25 +148,30 @@ include_once 'bd.inc.php';
 	 * @param array $lesIdProduit tableau associatif contenant les id des produits commandés
 	 
 	*/
-	function creerCommande($nom,$rue,$cp,$ville,$mail, $lesIdProduit )
+	function creerCommande($lesIdProduit)
 	{
 		try 
 		{
+		$mail = getMail();
         $monPdo = connexionPDO();
 		// on récupère le dernier id de commande
-		$req = 'select max(id) as maxi from commande';
-		$res = $monPdo->query($req);
-		$laLigne = $res->fetch();
+		$req = 'select max(id) as maxi from commande where mail=:mail';
+		$req = $monPdo->prepare($req);
+		$req->execute(['mail'=>$mail]);
+		$laLigne = $req->fetch();
 		$maxi = $laLigne['maxi'] ;// on place le dernier id de commande dans $maxi
 		$idCommande = $maxi+1; // on augmente le dernier id de commande de 1 pour avoir le nouvel idCommande
-		$date = date('Y/m/d'); // récupération de la date système
-		$req = "insert into commande values ('$idCommande','$date','$nom','$rue','$cp','$ville','$mail')";
-		$res = $monPdo->exec($req);
-		// insertion produits commandés
+		$date = date('Y-m-d'); // récupération de la date système
+		$req = "insert into commande (MAIL, ID, DATECOMMANDE) values (:mail, :id, :date)";
+		$req = $monPdo->prepare($req);
+		$req->execute(['mail'=>$mail, 'id'=>$idCommande, 'date'=>$date]);
+		//insertion produits commandés
 		foreach($lesIdProduit as $unIdProduit)
 		{
-			$req = "insert into contenir values ('$idCommande','$unIdProduit')";
-			$res = $monPdo->exec($req);
+			$req = "insert into contenir (id_produit, id_contenance, mail_commande, id_commande, qte) values (:idp, :idc, :mail, :idco, :qte)";
+			$req = $monPdo->prepare($req);
+			$req->execute(['idp'=>$unIdProduit['id'], 'idc'=>$unIdProduit['id_contenance'], 'mail'=>$mail, 'idco'=>$idCommande, 'qte'=>$unIdProduit['qte'] ]);
+			var_dump($unIdProduit);
 		}
 		return true;
 		}
@@ -341,7 +347,7 @@ include_once 'bd.inc.php';
 
 	function getDetailsProduit($id){
 		$monPdo= connexionPDO();
-		$req="SELECT id, nom_marque as marque, libelle, description, image, dateMiseEnRayon, id_categorie from produit p inner join marque m on m.id_marque = p.id_marque WHERE id=:id;";
+		$req="SELECT p.id, nom_marque as marque, libelle, description, image, dateMiseEnRayon, id_categorie, min(prix) as prix from produit p inner join produitcontenance pc on pc.id=p.id inner join marque m on m.id_marque = p.id_marque WHERE p.id=:id;";
 		$req = $monPdo->prepare($req);
 		$req->execute(['id'=>$id]);
 		$res = $req->fetch(PDO::FETCH_ASSOC);
@@ -355,5 +361,13 @@ include_once 'bd.inc.php';
 		$req->execute(['id'=>$id]);
 		$res = $req->fetchAll(PDO::FETCH_ASSOC);
 		return $res;
+	}
+
+	function getIdReco($id){
+		$monPdo= connexionPDO();
+		$req = "SELECT id_produit FROM recommande WHERE id=:id";
+		$req = $monPdo->prepare($req);
+		$req->execute(['id'=>$id]);
+		return $req->fetchAll(PDO::FETCH_ASSOC);
 	}
 ?>

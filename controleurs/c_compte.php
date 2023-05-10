@@ -87,4 +87,7 @@ switch($action)
 		include("vues/v_accueil.html");
 		break;
 	}
+	case "redigerAvis":{
+		
+	}
 }
