@@ -131,10 +131,8 @@
             </thead>
             <tbody>
                 <?php
-                // Exemple de données de contenances
-                // Parcours des contenances pour générer les lignes du tableau
+                $id_produit = $produit['id']; 
                 foreach ($conts as $contenance) {
-                    $id_produit = 123; // Remplacez par l'ID réel du produit
 
                     echo "<tr>";
                     echo "<td>" . $contenance['id_contenance'] . "</td>";
@@ -143,7 +141,7 @@
                     echo "<td>" . $contenance['unit_intitule'] . "</td>";
                     echo "<td>" . $contenance['stock'] . "</td>";
                     echo "<td>" . ($contenance['isBase'] ? 'Oui' : 'Non') . "</td>";
-                    echo "<td><a href=\"index.php?uc=gererProduits&action=editerContenance&id=$id_produit&idContenance=" . $contenance['id_contenance'] . "\" class=\"btn btn-primary\">Éditer</a></td>";
+                    echo "<td><a href=\"index.php?uc=gererProduits&action=editerContenance&id=$id_produit&idC=" . $contenance['id_contenance'] . "\" class=\"btn btn-primary\">Éditer</a></td>";
                     echo "</tr>";
                 }
                 ?>
@@ -151,62 +149,3 @@
             </tbody>
         </table>
     </div>
-
-
-
-
-<!--
-	<table>
-	<form action=<?php echo '"index.php?uc=administrer&produit='.$_REQUEST['produit'].'&action=confirmerEdition"';?> method="post" enctype="multipart/form-data">
-		<th colspan="2">
-			<h1>
-				<?php echo 'Edition du produit '.$_REQUEST['produit'];?>
-			</h1>
-		</th>
-		<tr><td width="1500">
-	Description du produit :
-  		</td><td>
-	<input type="text" name="description" id="description">
-		</td></tr>
-		<tr><td>
-	Prix du produit :
-  		</td><td>
-	<input type="text" name="prix" id="prix">
-		</td></tr>
-		<tr><td>
-  	Image du produit:
-  		</td><td width="9000">
-  	<input type="file" name="fileToUpload" id="fileToUpload">
-		</td></tr>
-		<tr><td>
-	Type du produit :
-  		</td><td>
-	<select id="categorie" name="categorie">
-		<?php
-	$laCat=getCatProduit($_REQUEST['produit']);
-	$lesCats=getLesCategories();
-	foreach ($lesCats as $cat) {
-		?>
-		<option 
-		value=<?php echo '"'.$cat['id'].'"';?> 
-		<?php if($cat['id']==$laCat){
-			echo 'selected';
-		}?>
-		>
-		<?php echo $cat['libelle']?>
-		</option>
-		<?php
-	}
-	?>
-	</select>
-		</td></tr>
-		<tr><td>
-  	<input type="submit" name="submit">
-		</td></tr>
-</form>	
-</table>
-
-
-
-
--->

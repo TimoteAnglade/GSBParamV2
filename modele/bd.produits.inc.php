@@ -484,7 +484,22 @@ include_once 'bd.inc.php';
 		}
 		catch (PDOException $e)
 		{
-			print "ERREUR SQL : ".$e;
+			return false;
+		}
+	}
+
+	function editContenance($id, $idC, $isBase, $qte, $unite, $prix, $stock){
+		try
+		{
+			$monPdo = connexionPDO();
+			$req = 'update produitcontenance set prix=:prix, qte=:qte, isBase=:isBase, id_unit=:unite, stock=:stock where id=:id and id_contenance=:idC';
+			$req = $monPdo->prepare($req);
+			$req->execute(['id'=>$id, 'idC'=>$idC, 'isBase'=>$isBase, 'qte'=>$qte, 'id'=>$id, 'unite'=>$unite, 'prix'=>$prix, 'stock'=>$stock]);
+			return true;
+		}
+		catch (PDOException $e)
+		{
+			var_dump($e);
 			return false;
 		}
 	}
@@ -512,5 +527,23 @@ include_once 'bd.inc.php';
 			print "ERREUR SQL : ".$e;
 			return false;
 		}
+	}
+
+	function getContenance($id, $idC){
+		$monPdo= connexionPDO();
+		$req="SELECT pc.id, id_contenance, prix, qte, stock, isBase, id_categorie, pc.id_unit, unit_intitule, unit_pluriel from produit p inner join produitcontenance pc on pc.id = p.id inner join unites u on pc.id_unit=u.id_unit WHERE p.id=:id AND id_contenance=:idC;";
+		$req = $monPdo->prepare($req);
+		$req->execute(['id'=>$id, 'idC'=>$idC]);
+		$res = $req->fetch(PDO::FETCH_ASSOC);
+		return $res;
+	}
+
+	function existContenance($id, $idC){
+		$monPdo= connexionPDO();
+		$req="SELECT count(id_contenance) as 'is' from produitcontenance where id=:id AND id_contenance=:idC;";
+		$req = $monPdo->prepare($req);
+		$req->execute(['id'=>$id, 'idC'=>$idC]);
+		$res = $req->fetch(PDO::FETCH_ASSOC);
+		return $res['is'];
 	}
 ?>

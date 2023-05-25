@@ -24,6 +24,7 @@
       <th scope="col">#</th>
       <th scope="col">Image</th>
       <th scope="col">Contenance</th>
+      <th scope="col">Nombre</th>
       <th scope="col">Prix</th>
       <th scope="col">Prix réduit</th>
       <th scope="col">Quantité Contenance</th>
@@ -37,6 +38,7 @@
       echo '<th scope="row">'.$cd['id'].'</th>';
       echo '<td><a href="'.'index.php?uc=voirProduits&action=detailsProduit&id='.$cd['id'].'"><img src="'.$cd['image'].'" style="max-width: 40px;"></a></td>';
       echo '<td>'.$cd['id_contenance'].'</td>';
+      echo '<td>'.$cd['qte'].'</td>';
       echo '<td>'.$cd['prix'].' €</td>';
       echo '<td>'.$cd['prixReduit'].' €</td>';
       echo '<td>'.$cd['qteC'].' ';

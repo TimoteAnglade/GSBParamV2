@@ -219,7 +219,131 @@ switch($action)
 		$infos=getAllContenances();
 		include('vues/v_gererStock.php');
 		break;
+	case 'nouvelleContenance':
+	{
+		if(isset($_REQUEST['id'])){
+			if(!empty($_REQUEST['id'])){
+				$infos=['id'=>$_REQUEST['id'], 'id_contenance'=>"", 'prix'=>"", 'qte'=>"", 'stock'=>"", 'id_unit'=>""];
+				$unites=getAllUnites();
+				var_dump($infos);
+				if($infos){
+				include('vues/v_formContenance.php');					
+				}
+				else{
+					include('vues/v_accueil.php');
+				}
+			}
+		}
+		break;
 	}
+	case 'editerContenance':
+	{
+		if(isset($_REQUEST['id'])&&isset($_REQUEST['idC'])){
+			if(!empty($_REQUEST['id'])&&!empty($_REQUEST['idC'])){
+				$infos=getContenance($_REQUEST['id'], $_REQUEST['idC']);
+				$unites=getAllUnites();
+				if($infos){
+				include('vues/v_formContenance.php');					
+				}
+				else{
+					include('vues/v_accueil.php');
+				}
+			}
+		}
+		break;
+	}
+	case 'confirmerContenance' :
+	{
+		var_dump($_REQUEST);
+		if(isset($_REQUEST['id'])&&isset($_REQUEST['idC'])&&isset($_REQUEST['qte'])&&isset($_REQUEST['unite'])&&isset($_REQUEST['prix'])&&isset($_REQUEST['stock'])){
+			if(!empty($_REQUEST['id'])&&!empty($_REQUEST['idC'])&&!empty($_REQUEST['qte'])&&!empty($_REQUEST['unite'])&&!empty($_REQUEST['prix'])){
+				if(existContenance($_REQUEST['id'], $_REQUEST['idC'])){
+					if($_REQUEST['idC']==1){$isBase=1;}else{$isBase=0;}
+					if(editContenance($_REQUEST['id'], $_REQUEST['idC'], $isBase, $_REQUEST['qte'], $_REQUEST['unite'], $_REQUEST['prix'], $_REQUEST['stock']))
+							{
+								$id=$_REQUEST['id'];
+								$produit=getDetailsProduit($id);
+								$conts=getContenances($id);
+								$marques = getAllMarques();
+								$prixC = "{";
+								foreach($conts as $cont){
+									$prix1 = round($cont['prix'],2);
+									$prix2 = getBestPromo($cont['id'],$cont["id_contenance"])*$cont['prix'];
+									if($prix1!=$prix2){
+										$prix3="<NOBR><strike><i>".$prix1." €</i></strike> <strong>".$prix2." €</strong></NOBR>";
+									}
+									else{
+										$prix3="<NOBR><strong>".$prix1." €</strong></NOBR>";
+									}
+
+									$prixC = $prixC."'".$cont['id_contenance']."prix' : '".$prix3."', ";
+									$prixC = $prixC."'".$cont['id_contenance']."stock' : '".$cont['stock']."', ";
+								}
+								$prixC = $prixC.'}';
+								include('vues/v_formEdit.php');
+							}
+					else{
+						$msgErreurs[] = "Cette ID contenance existe déjà";
+						include('vues/v_erreurs.php');
+						$infos=getContenance($_REQUEST['id'], $_REQUEST['idC']);
+						$unites=getAllUnites();
+						if($infos){
+						include('vues/v_formContenance.php');					
+						}
+						else{
+							include('vues/v_accueil.php');
+						}
+					}
+				}
+				else{
+					if(ajoutContenance($_REQUEST['id'], $_REQUEST['idC'], 0, $_REQUEST['qte'], $_REQUEST['unite'], $_REQUEST['prix'], $_REQUEST['stock']))
+							{
+								$id=$_REQUEST['id'];
+								$produit=getDetailsProduit($id);
+								$conts=getContenances($id);
+								$marques = getAllMarques();
+								$prixC = "{";
+								foreach($conts as $cont){
+									$prix1 = round($cont['prix'],2);
+									$prix2 = getBestPromo($cont['id'],$cont["id_contenance"])*$cont['prix'];
+									if($prix1!=$prix2){
+										$prix3="<NOBR><strike><i>".$prix1." €</i></strike> <strong>".$prix2." €</strong></NOBR>";
+									}
+									else{
+										$prix3="<NOBR><strong>".$prix1." €</strong></NOBR>";
+									}
+
+									$prixC = $prixC."'".$cont['id_contenance']."prix' : '".$prix3."', ";
+									$prixC = $prixC."'".$cont['id_contenance']."stock' : '".$cont['stock']."', ";
+								}
+								$prixC = $prixC.'}';
+								include('vues/v_formEdit.php');
+							}
+					else{
+						$msgErreurs[] = "Cette ID contenance existe déjà";
+						include('vues/v_erreurs.php');
+						$infos=getContenance($_REQUEST['id'], $_REQUEST['idC']);
+						$unites=getAllUnites();
+						if($infos){
+						include('vues/v_formContenance.php');					
+						}
+						else{
+							include('vues/v_accueil.php');
+						}
+					}
+
+				}
+			}
+			else{
+				include('vues/v_accueil.php');
+			}
+		}
+		else{
+			include('vues/v_accueil.php');
+		}
+	break;
+	}
+}
 }
 else{
 	header("Location:index.php");
