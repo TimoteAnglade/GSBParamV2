@@ -332,7 +332,6 @@ include_once 'bd.inc.php';
 		}
 		catch (PDOException $e)
 		{
-			var_dump($e);
 			return false;
 		}
 	}	

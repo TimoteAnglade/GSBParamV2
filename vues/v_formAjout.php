@@ -52,7 +52,7 @@
 				  </select>
 				</div>
 				<div class="input-group flex-nowrap">
-				  <input type="number" class="form-control" placeholder="Prix" name="prix" id="prix" required>
+				  <input type="number" class="form-control" placeholder="Prix" name="prix" id="prix" step="0.01" required>
 				  <span class="input-group-text" id="addon-wrapping">€</span>
 				</div>
 				<label for="stock" style="margin-top: 15px;">Stock :</label>

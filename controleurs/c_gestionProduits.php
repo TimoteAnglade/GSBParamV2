@@ -50,7 +50,6 @@ switch($action)
 	case 'confirmerEdition' :
 		$target_file='';
 		if($_FILES["image"]["size"] > 0){
-			var_dump("CACA");
 			$target_dir = "images/UPLOADED_";
 			$target_file = $target_dir . basename($_FILES["image"]["name"]);
 			$uploadOk = 1;
@@ -109,10 +108,8 @@ switch($action)
 		break;
 	case 'confirmerAjout' :
 		$valide=isset($_REQUEST['id'])&&isset($_REQUEST['nom'])&&isset($_REQUEST['description'])&&isset($_REQUEST['type'])&&isset($_REQUEST['marque'])&&isset($_FILES['image'])&&isset($_REQUEST['qte'])&&isset($_REQUEST['unite'])&&isset($_REQUEST['prix']);
-			var_dump($valide);
 		if($valide){
 			$valide = !empty($_REQUEST['id'])&&!empty($_REQUEST['nom'])&&!empty($_REQUEST['description'])&&!empty($_REQUEST['type'])&&!empty($_REQUEST['marque'])&&$_FILES["image"]["size"]>0&&!empty($_REQUEST['qte'])&&!empty($_REQUEST['unite'])&&!empty($_REQUEST['prix']);
-			var_dump($valide);
 		}
 		if($valide){
 			$target_file='';
@@ -212,14 +209,10 @@ switch($action)
 	}
 	case 'modifStock':
 		if(isset($_REQUEST['id'])&&isset($_REQUEST['idC'])&&isset($_REQUEST['stock'])){
-			var_dump(1);
 			if(!empty($_REQUEST['id'])&&!empty($_REQUEST['idC'])&&!empty($_REQUEST['stock'])){
-			var_dump(2);
 				if(modifStock($_REQUEST['id'], $_REQUEST['idC'], $_REQUEST['stock'])){
-					echo 'GROS CACA QUI PUE';
 				}
 				else{
-					echo 'GROS CACA QUI PUE PAS';	
 				}
 			}
 		}
