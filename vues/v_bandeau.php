@@ -21,15 +21,18 @@ else {
 	<li><a href="index.php?uc=gererPanier&action=voirPanier"> Voir son panier </a></li>
 	<?php
 	if(isset($_SESSION['mail'])) {
+		if(isAdmin()){
+			?>
+			<li><a href="index.php?uc=gererProduits&action=listeProduits"> Gérer les produits </a></li>
+			<li><a href="index.php?uc=gererProduits&action=stocks"> Gérer les stocks </a></li>
+			<li><a href="index.php?uc=gererProduits&action=ajoutProduit"> Ajouter un produit </a></li>
+			<li><a href="index.php?uc=gererCommandes&action=listeCommandes"> Gérer les commandes </a></li>
+			<li><a href="index.php?uc=gererCommandes&action=voirResultats"> Voir le montant des commandes </a></li>
+			<?php
+		}
 		?>
 		<li><a href="index.php?uc=compte&action=deconnexion"> Se déconnecter </a></li>
 		<?php
-		if(isAdmin()){
-			?>
-			<li><a href="index.php?uc=administrer&action=listeProduits"> Gérer produits </a></li>
-			<li><a href="index.php?uc=administrer&action=ajoutProduit"> Ajouter produit </a></li>
-			<?php
-		}
 	}else{
 		?>
 		<li><a href="index.php?uc=compte&action=connexion"> Se connecter </a></li>
@@ -38,3 +41,4 @@ else {
 		}
 ?>
 </ul>
+</br>

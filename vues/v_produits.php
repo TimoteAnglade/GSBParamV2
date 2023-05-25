@@ -7,7 +7,14 @@ foreach($lesProduits as $unProduit)
 	$id = $unProduit['id'];
 	$description = $unProduit['description'];
 	$nom = $unProduit['libelle'];
-	$prix=$unProduit['prix'];
+	$prix1 = round($unProduit['prix'],2);
+	$prix2 = getBestPrix($unProduit['id']);
+	if($prix1!=$prix2){
+		$prix3="<NOBR><strike><i>".$prix1." €</i></strike> <strong>".$prix2." €</strong></NOBR>";
+	}
+	else{
+		$prix3="<NOBR><strong>".$prix1." €</strong></NOBR>";
+	}
 	$image = $unProduit['image'];
 	$marque = $unProduit['marque'];
 	$stock = $unProduit['stock'];
@@ -26,7 +33,13 @@ foreach($lesProduits as $unProduit)
 				<input type="text" name="action" value="detailsProduit" hidden>
 				<input type="text" name="id" value="<?php echo $id; ?>" hidden>
 				<div class="d-flex align-items-around">
-					<div class="p-2"><h6 class="text-center">A partir de <span class="font-weight-bold"><?php echo $prix."€" ?></span></h6></div>
+					<div class="p-2"><h6 class="text-center">A partir de <span class="font-weight-bold">
+
+						<?php echo $prix3 ?>
+
+
+
+					</span></h6></div>
 					<div class="p-2"><h6 class="text-center"><span class="font-weight-bold text-<?php if($stock){echo "success\">En stock";}else{echo "danger\">Hors stock";} ?></span></h6></div>
 					<input type="submit" value="Voir" class="p-2 form-control btn btn-success">
 				</div>

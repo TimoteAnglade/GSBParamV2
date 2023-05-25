@@ -10,7 +10,10 @@ case 'voirPanier':
 	{
 		$desIdProduit = getLesIdProduitsDuPanier();
 		$lesProduitsDuPanier = getLesProduitsDuTableau($desIdProduit);
-		for($i=0; $i<count($desIdProduit); $i++){}
+		$correct = true;
+		foreach($lesProduitsDuPanier as $prod){
+			$correct = $correct&&($prod['assez']==1);
+		}
 		include("vues/v_panier.php");
 	}
 	else
@@ -35,14 +38,41 @@ case 'passerCommande' :
 	if($n>0)
 	{
 		$lesIdProduit = getLesIdProduitsDuPanier();
-		if(creerCommande($lesIdProduit)){
-			$message = "Commande enregistrée";
-			supprimerPanier();
+		$lesProduitsDuPanier = getLesProduitsDuTableau($lesIdProduit);
+		$correct = true;
+		foreach($lesProduitsDuPanier as $prod){
+			$correct = $correct&&($prod['assez']==1);
+		}
+		if($correct){
+			if(creerCommande($lesProduitsDuPanier)){
+				$message = "Commande enregistrée";
+				supprimerPanier();
+			}
+			else{
+				$message = "Commande échouée";
+			}
+			include ("vues/v_message.php");
 		}
 		else{
-			$message = "Commande échouée";
+			$message = "Un des produits n'a pas assez de stock pour la commande.";
+			include ("vues/v_message.php");
+			$n= nbProduitsDuPanier();
+			if($n >0)
+			{
+				$desIdProduit = getLesIdProduitsDuPanier();
+				$lesProduitsDuPanier = getLesProduitsDuTableau($desIdProduit);
+				$correct = true;
+				foreach($lesProduitsDuPanier as $prod){
+					$correct = $correct&&($prod['assez']==1);
+				}
+				include("vues/v_panier.php");
+			}
+			else
+			{
+				$message = "panier vide !!";
+				include ("vues/v_message.php");
+			}
 		}
-		include ("vues/v_message.php");
 	}
 	else
 	{
@@ -53,6 +83,7 @@ case 'passerCommande' :
 }
 case 'confirmerCommande' :
 {
+	var_dump("GROS CACA QUI PUE");
 	$nom =$_REQUEST['nom'];$rue=$_REQUEST['rue'];$ville =$_REQUEST['ville'];$cp=$_REQUEST['cp'];$mail=$_REQUEST['mail'];
 	$msgErreurs = getErreursSaisieCommande($nom,$rue,$ville,$cp,$mail);
 	if (count($msgErreurs)!=0)
@@ -79,7 +110,7 @@ case 'viderPanier' :
 }
 }
 else{
-	include("vues/v_accueil.html");
+	include("vues/v_accueil.php");
 }
 ?>
 

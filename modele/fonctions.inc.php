@@ -26,26 +26,32 @@ function supprimerPanier()
 */
 function ajouterAuPanier($idProduit, $idCont, $qte)
 {
-	$ok=false;
+	$ok=0;
 	if(isset($_SESSION['mail']))
 	{
-		$mail=getMail();
-		$monPdo= connexionPDO();
-		$req = "SELECT count(*) FROM panier WHERE mail=:mail AND id=:idProduit AND id_contenance=:cont;";
-		$req = $monPdo->prepare($req);
-		$req->execute(['mail'=>$mail, 'idProduit'=>$idProduit, 'cont'=>$idCont]);
-		$count = $req->fetch()[0];
-		if($count){
-			$req = "UPDATE panier SET qte=qte+:qte WHERE mail=:mail AND id=:idProduit AND id_contenance=:cont;";
-		$req = $monPdo->prepare($req);
-		$req->execute(['mail'=>$mail, 'idProduit'=>$idProduit, 'cont'=>$idCont, 'qte'=>$qte]);
-		}
-		else{
-			$req = "INSERT INTO panier (id, id_contenance, mail, qte) VALUES (:id, :idCont, :mail, :qte);";
+		try{
+			$mail=getMail();
+			$monPdo= connexionPDO();
+			$req = "SELECT count(*) FROM panier WHERE mail=:mail AND id=:idProduit AND id_contenance=:cont;";
 			$req = $monPdo->prepare($req);
-			$req->execute(['mail'=>$mail, 'id'=>$idProduit, 'idCont'=>$idCont, 'qte'=>$qte]);
+			$req->execute(['mail'=>$mail, 'idProduit'=>$idProduit, 'cont'=>$idCont]);
+			$count = $req->fetch()[0];
+			if($count){
+				$req = "UPDATE panier SET qte=qte+:qte WHERE mail=:mail AND id=:idProduit AND id_contenance=:cont;";
+			$req = $monPdo->prepare($req);
+			$req->execute(['mail'=>$mail, 'idProduit'=>$idProduit, 'cont'=>$idCont, 'qte'=>$qte]);
+			}
+			else{
+				$req = "INSERT INTO panier (id, id_contenance, mail, qte) VALUES (:id, :idCont, :mail, :qte);";
+				$req = $monPdo->prepare($req);
+				$req->execute(['mail'=>$mail, 'id'=>$idProduit, 'idCont'=>$idCont, 'qte'=>$qte]);
+			}
+			$ok=2;
 		}
-		$ok=true;
+		catch(PDOException $e){
+			print('ERREUR SQL : ' + $e);
+			$ok=1;
+		}
 	}
 	return $ok;
 }
@@ -404,4 +410,165 @@ function isAdmin(){
 	}
 	return $admin;
 }
+
+function year($date){
+	return substr($date, 0, 4);
+}
+
+function month($date){
+	return substr($date, 5, 2);
+}
+
+function day($date){
+	return substr($date, 8);
+}
+
+
+
+function getTextFromDate($date){
+	$annee = year($date);
+	$mois = month($date);
+	$jour = day($date);
+	$result = $jour." ";
+	switch ($mois) {
+		
+		case '01':
+			$result = $result."Janvier";
+			break;
+		
+		case '02':
+			$result = $result."Février";
+			break;
+		
+		case '03':
+			$result = $result."Mars";
+			break;
+		
+		case '04':
+			$result = $result."Avril";
+			break;
+		
+		case '05':
+			$result = $result."Mai";
+			break;
+		
+		case '06':
+			$result = $result."Juin";
+			break;
+		
+		case '07':
+			$result = $result."Juillet";
+			break;
+		
+		case '08':
+			$result = $result."Aout";
+			break;
+		
+		case '09':
+			$result = $result."Septembre";
+			break;
+		
+		case '10':
+			$result = $result."Octobre";
+			break;
+		
+		case '11':
+			$result = $result."Novembre";
+			break;
+		
+		default:
+			$result = $result."Décembre";
+			break;
+	}
+	$result = $result." ".$annee;
+	return $result;
+}
+
+function getChiffredAffaireParMois(){
+	try{
+		$monPdo = connexionPDO();
+		$req = "SELECT DATE_FORMAT(dateCommande, '%Y/%m') as mois, SUM(contenir.qte*prix*reduction) as 'Chiffre d\'affaire' from commande inner join contenir on contenir.id_commande=commande.id inner join produitcontenance on produitcontenance.id_contenance=contenir.id_contenance and produitcontenance.id=contenir.id_produit group by DATE_FORMAT(dateCommande, '%Y/%m');";
+		$req = $monPdo->prepare($req);
+		$req->execute();
+		$res = $req->fetchAll(PDO::FETCH_ASSOC);
+		return $res;
+	}
+	catch (PDOException $e) 
+	{
+		print "ERREUR SQL : ".$e;
+		die();
+	}
+}
+
+function getMonthFromNumber($n){
+	switch ($n) {
+		
+		case '01':
+			return "Janvier";
+			break;
+		
+		case '02':
+			return "Février";
+			break;
+		
+		case '03':
+			return "Mars";
+			break;
+		
+		case '04':
+			return "Avril";
+			break;
+		
+		case '05':
+			return "Mai";
+			break;
+		
+		case '06':
+			return "Juin";
+			break;
+		
+		case '07':
+			return "Juillet";
+			break;
+		
+		case '08':
+			return "Aout";
+			break;
+		
+		case '09':
+			return "Septembre";
+			break;
+		
+		case '10':
+			return "Octobre";
+			break;
+		
+		case '11':
+			return "Novembre";
+			break;
+		
+		default:
+			return "Décembre";
+			break;
+	}
+}
+
+function getAllUnites(){
+	try 
+		{
+      $monPdo= connexionPDO();
+		$req="select id_unit, unit_intitule, IFNULL(unit_pluriel, '') from unites";
+		$req = $monPdo->prepare($req);
+		$req->execute();
+		$res = $req->fetchAll(PDO::FETCH_ASSOC);
+		return $res;
+		}
+		catch (PDOException $e) 
+		{
+        print "Erreur !: " . $e->getMessage();
+        die();
+		}
+}
+
+
 ?>

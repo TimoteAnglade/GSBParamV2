@@ -7,7 +7,7 @@ body{
 #accueil{
 	width=60%;
 	text-align: center;
-	padding-top: 7%;
+	padding-top: 3%;
 	color: #33d64c ;
 }
 
@@ -56,10 +56,6 @@ input[type="submit"]
    color:rgb(0,0,205);
    font-size:1.1em;
    width:95%;
-}
-
-#bandeau {
-
 }
 
 #menu{

@@ -5,7 +5,7 @@ switch($action)
 	case "connexion" :
 	{
 		if(isset($_SESSION['mail'])) {
-			include("vues/v_accueil.html");
+			include("vues/v_accueil.php");
 		}
 		else{
 			$mail='';$password='';
@@ -35,7 +35,7 @@ switch($action)
 	case "inscription" :
 	{
 		if(isset($_SESSION['mail'])) {
-			include("vues/v_accueil.html");
+			include("vues/v_accueil.php");
 		}
 		else{
 			$password1='';$password2='';$nom='';$prenom='';$rue='';$ville='';$cp='';$mail='';
@@ -64,7 +64,7 @@ switch($action)
 			if(inscription($mail,$password1,$nom,$prenom,$rue,$ville,$cp)){
 				$message = "Inscription effectuée";
 				include ("vues/v_message.php");
-				include ("vues/v_accueil.html");
+				include ("vues/v_accueil.php");
 			}
 			else{
 				$msgErreurs[] = "Ce mail est déjà utilisé.";
@@ -84,7 +84,7 @@ switch($action)
 	{
 		$message = "Déconnexion réussie !";
 		include("vues/v_message.php");	
-		include("vues/v_accueil.html");
+		include("vues/v_accueil.php");
 		break;
 	}
 	case "redigerAvis":

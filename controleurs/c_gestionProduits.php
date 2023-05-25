@@ -26,19 +26,39 @@ switch($action)
 		include("vues/v_produitsEdit.php");
 		break;
 	case 'editerProduit' :
+		$id=$_REQUEST['produit'];
+		$produit=getDetailsProduit($id);
+		$conts=getContenances($id);
+		$marques = getAllMarques();
+		$prixC = "{";
+		foreach($conts as $cont){
+			$prix1 = round($cont['prix'],2);
+			$prix2 = getBestPromo($cont['id'],$cont["id_contenance"])*$cont['prix'];
+			if($prix1!=$prix2){
+				$prix3="<NOBR><strike><i>".$prix1." €</i></strike> <strong>".$prix2." €</strong></NOBR>";
+			}
+			else{
+				$prix3="<NOBR><strong>".$prix1." €</strong></NOBR>";
+			}
+
+			$prixC = $prixC."'".$cont['id_contenance']."prix' : '".$prix3."', ";
+			$prixC = $prixC."'".$cont['id_contenance']."stock' : '".$cont['stock']."', ";
+		}
+		$prixC = $prixC.'}';
 		include('vues/v_formEdit.php');
 		break;
 	case 'confirmerEdition' :
 		$target_file='';
-		if($_FILES["fileToUpload"]["size"] > 0){
+		if($_FILES["image"]["size"] > 0){
+			var_dump("CACA");
 			$target_dir = "images/UPLOADED_";
-			$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+			$target_file = $target_dir . basename($_FILES["image"]["name"]);
 			$uploadOk = 1;
 			$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
 			// Check if image file is a actual image or fake image
-			if(isset($_POST["submit"])) {
-			  $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+			if(true) {
+			  $check = getimagesize($_FILES["image"]["tmp_name"]);
 			  if($check !== false) {
 			    $uploadOk = 1;
 			  } else {
@@ -46,12 +66,6 @@ switch($action)
 				include('vues/v_erreurs.php');
 			    $uploadOk = 0;
 			  }
-			}
-
-			// Check if file already exists
-			if (file_exists($target_file)) {
-			  //echo "Sorry, file already exists.";
-			  $uploadOk = 0;
 			}
 
 			// Allow certain file formats
@@ -68,19 +82,20 @@ switch($action)
 				include('vues/v_erreurs.php');
 			// if everything is ok, try to upload file
 			} else {
-			  if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-			    echo "The file ". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
+			  if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+			    //echo "The file ". htmlspecialchars( basename( $_FILES["image"]["name"])). " has been uploaded.";
 			  } else {
 				$msgErreurs[]="Sorry, there was an error uploading your file.";
 				include('vues/v_erreurs.php');
 			  }
 			}
 		}
-		$code=$_REQUEST['produit'];
-		$prix=$_REQUEST['prix'];
+		$id=$_REQUEST['id'];
+		$libelle=$_REQUEST['nom'];
 		$description=$_REQUEST['description'];
-		$categorie=$_REQUEST['categorie'];
-		if(editProduit($code,$description,$prix,$categorie,$target_file)){
+		$categorie=$_REQUEST['type'];
+		$marque=$_REQUEST['marque'];
+		if(editProduit($id,$libelle,$description,$target_file,$categorie,$marque)){
 			$message="Le produit a été modifié.";
 			include('vues/v_message.php');
 		}
@@ -88,73 +103,91 @@ switch($action)
 		include('vues/v_produitsEdit.php');
 		break;
 	case 'ajoutProduit' :
+		$unites = getAllUnites();
+		$marques = getAllMarques();
 		include('vues/v_formAjout.php');
 		break;
 	case 'confirmerAjout' :
-		$target_file='';
-		if($_FILES["fileToUpload"]["size"] > 0){
-			$target_dir = "images/UPLOADED_";
-			$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-			$uploadOk = 1;
-			$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+		$valide=isset($_REQUEST['id'])&&isset($_REQUEST['nom'])&&isset($_REQUEST['description'])&&isset($_REQUEST['type'])&&isset($_REQUEST['marque'])&&isset($_FILES['image'])&&isset($_REQUEST['qte'])&&isset($_REQUEST['unite'])&&isset($_REQUEST['prix']);
+			var_dump($valide);
+		if($valide){
+			$valide = !empty($_REQUEST['id'])&&!empty($_REQUEST['nom'])&&!empty($_REQUEST['description'])&&!empty($_REQUEST['type'])&&!empty($_REQUEST['marque'])&&$_FILES["image"]["size"]>0&&!empty($_REQUEST['qte'])&&!empty($_REQUEST['unite'])&&!empty($_REQUEST['prix']);
+			var_dump($valide);
+		}
+		if($valide){
+			$target_file='';
+			if($_FILES["image"]["size"] > 0){
+				$target_dir = "images/UPLOADED_";
+				$target_file = $target_dir . basename($_FILES["image"]["name"]);
+				$uploadOk = 1;
+				$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
-			// Check if image file is a actual image or fake image
-			if(isset($_POST["submit"])) {
-			  $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
-			  if($check !== false) {
-			    $uploadOk = 1;
-			  } else {
-				$msgErreurs[]="File is not an image.";
-			    $uploadOk = 0;
-			  }
+				// Check if image file is a actual image or fake image
+				if(true) {
+				  $check = getimagesize($_FILES["image"]["tmp_name"]);
+				  if($check !== false) {
+				    $uploadOk = 1;
+				  } else {
+					$msgErreurs[]="File is not an image.";
+				    $uploadOk = 0;
+				  }
+				}
+
+				if ($_FILES["image"]["size"]>=1048576*2){
+					$msgErreurs[]="File is too big.";
+				    $uploadOk = 0;
+				}
+
+				// Allow certain file formats
+				if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+				&& $imageFileType != "gif" ) {
+					$msgErreurs[]="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+				  $uploadOk = 0;
+				}
+
+				// Check if $uploadOk is set to 0 by an error
+				if ($uploadOk == 0 | $_FILES['image']['error']) {
+					$msgErreurs[]="Sorry, your file was not uploaded.";
+					include('vues/v_erreurs.php');
+				// if everything is ok, try to upload file
+				} else {
+				  if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+				    //echo "The file ". htmlspecialchars( basename( $_FILES["image"]["name"])). " has been uploaded.";
+				  } else {
+					$msgErreurs[]="Sorry, there was an error uploading your file.";
+					include('vues/v_erreurs.php');
+				  }
+				}
 			}
-
-			if ($_FILES["fileToUpload"]["size"]>=1048576*2){
-				$msgErreurs[]="File is too big.";
-			    $uploadOk = 0;
+			$id=$_REQUEST['id'];
+			$libelle=$_REQUEST['nom'];
+			$description=$_REQUEST['description'];
+			$categorie=$_REQUEST['type'];
+			$marque=$_REQUEST['marque'];
+			$qte=$_REQUEST['qte'];
+			$unite=$_REQUEST['unite'];
+			$prix=$_REQUEST['prix'];
+			$stock=$_REQUEST['stock'];
+			if(ajoutProduit($id,$libelle,$description,$target_file,$categorie, $marque, $qte, $unite, $prix, $stock)){
+				$message="Le produit a été ajouté.";
+				include('vues/v_message.php');
+				$lesProduits=getLesProduits();
+				include('vues/v_produitsEdit.php');
 			}
-
-			// Check if file already exists
-			if (file_exists($target_file)) {
-			  //echo "Sorry, file already exists.";
-			  $uploadOk = 0;
-			}
-
-			// Allow certain file formats
-			if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-			&& $imageFileType != "gif" ) {
-				$msgErreurs[]="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-			  $uploadOk = 0;
-			}
-
-			// Check if $uploadOk is set to 0 by an error
-			if ($uploadOk == 0 | $_FILES['fileToUpload']['error']) {
-				$msgErreurs[]="Sorry, your file was not uploaded.";
+			else {
+				$unites = getAllUnites();
+				$marques = getAllMarques();
+				$msgErreurs[]="Impossible d'ajouter ce produit.";
 				include('vues/v_erreurs.php');
-			// if everything is ok, try to upload file
-			} else {
-			  if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-			    echo "The file ". htmlspecialchars( basename( $_FILES["fileToUpload"]["name"])). " has been uploaded.";
-			  } else {
-				$msgErreurs[]="Sorry, there was an error uploading your file.";
-				include('vues/v_erreurs.php');
-			  }
+				include('vues/v_formAjout.php');
 			}
 		}
-		$code=$_REQUEST['code'];
-		$prix=$_REQUEST['prix'];
-		$description=$_REQUEST['description'];
-		$categorie=$_REQUEST['categorie'];
-		if(ajoutProduit($code,$description,$prix,$categorie,$target_file)){
-			$message="Le produit a été ajouté.";
-			include('vues/v_message.php');
-		$lesProduits=getLesProduits();
-		include('vues/v_produitsEdit.php');
-		}
-		else {
-			$msgErreurs[]="Impossible d'ajouter ce produit.";
+		else{
+			$unites = getAllUnites();
+			$marques = getAllMarques();
+			$msgErreurs[]="Un ou des champs ne sont pas valides";
 			include('vues/v_erreurs.php');
-			include('vues/v_formAjout.php');
+			include('vues/v_formAjout.php');			
 		}
 		break;
 	case 'supprimerProduit' :
@@ -165,11 +198,35 @@ switch($action)
 		$produit=$_REQUEST['produit'];
 		if(supprimerProduit($produit)){
 			$message='Le produit a bien été supprimé.';
-			include('vues/v_message.php');
 		}
+		else{
+			$message='Le produit n\'a pas été supprimé';
+		}
+		include('vues/v_message.php');
 		$lesProduits=getLesProduits();
 		include('vues/v_produitsEdit.php');
-}
+	case 'stocks':
+	{
+		$infos=getAllContenances();
+		include('vues/v_gererStock.php');
+	}
+	case 'modifStock':
+		if(isset($_REQUEST['id'])&&isset($_REQUEST['idC'])&&isset($_REQUEST['stock'])){
+			var_dump(1);
+			if(!empty($_REQUEST['id'])&&!empty($_REQUEST['idC'])&&!empty($_REQUEST['stock'])){
+			var_dump(2);
+				if(modifStock($_REQUEST['id'], $_REQUEST['idC'], $_REQUEST['stock'])){
+					echo 'GROS CACA QUI PUE';
+				}
+				else{
+					echo 'GROS CACA QUI PUE PAS';	
+				}
+			}
+		}
+		$infos=getAllContenances();
+		include('vues/v_gererStock.php');
+		break;
+	}
 }
 else{
 	header("Location:index.php");
