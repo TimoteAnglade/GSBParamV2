@@ -254,7 +254,6 @@ switch($action)
 	}
 	case 'confirmerContenance' :
 	{
-		var_dump($_REQUEST);
 		if(isset($_REQUEST['id'])&&isset($_REQUEST['idC'])&&isset($_REQUEST['qte'])&&isset($_REQUEST['unite'])&&isset($_REQUEST['prix'])&&isset($_REQUEST['stock'])){
 			if(!empty($_REQUEST['id'])&&!empty($_REQUEST['idC'])&&!empty($_REQUEST['qte'])&&!empty($_REQUEST['unite'])&&!empty($_REQUEST['prix'])){
 				if(existContenance($_REQUEST['id'], $_REQUEST['idC'])){
